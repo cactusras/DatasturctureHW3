@@ -274,7 +274,7 @@ auto timeUsage(){
     auto start = std::chrono::high_resolution_clock::now();
 
     //用於產生實驗用的陣列
-    int n = pow(2,3);
+    int n = pow(2,3)-1;
     std::multiset<int> input;
     for(int i=0; i<n; i++){
         int num;
@@ -319,6 +319,8 @@ auto timeUsage(){
     int a = rand()%n;
     printf("\na, a+k: %d, %d\n", a, a+k);
     equivalent(rangeQueryArr(a, a+k, array), rangeQueryArrOfSort(a, a+k, ArrOfSorted), rangeQuerySkip(a, a+k, head));
+
+    //delete all the pointer that might cause problem
 
     auto end = std::chrono::high_resolution_clock::now();
     auto cpu__time_used = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
