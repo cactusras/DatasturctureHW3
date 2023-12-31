@@ -147,8 +147,27 @@ Node* randomUp(Node* bottom, Node* head){
                 break;
             }
         }
-    std::cout<<times;
+    // std::cout<<times;
     return downTemp;
+}
+
+Node* skipSearch(int a, Node* head){
+    Node* ptr = head;
+    while(ptr->down != nullptr){
+        if(ptr->right == nullptr || ptr->right->val > a){
+            ptr = ptr->down;
+        }else{
+            ptr = ptr->right;
+        }
+    }
+    while(ptr->val < a){
+        if(ptr->right!= nullptr){
+            ptr = ptr->right;
+        }else{
+            return nullptr;
+        }
+    }
+    return ptr;
 }
 
 Node* skiplistCreation(std::vector<int> input){
@@ -187,6 +206,68 @@ Node* skiplistCreation(std::vector<int> input){
     return start;
 }
 
+std::multiset<int> rangeQueryArr(int a, int b, std::vector<int> arr){
+    std::multiset<int> query;
+    for(int elem: arr){
+        if(elem<=b && elem>=a){
+            query.insert(elem);
+        }else if(elem>b){
+            break;
+        }
+    }
+    // for(int x: query){
+    //     printf("ra: %d\n",x);
+    // }
+    return query;
+}
+
+std::multiset<int> rangeQueryArrOfSort(int a, int b, std::vector<std::vector<int>*> ArrOfSorted){
+    std::multiset<int> query;
+    for(std::vector<int>* arr: ArrOfSorted){
+        for(int elem: *arr){
+            if(elem<=b && elem>=a){
+                query.insert(elem);
+            }else if(elem>b){
+                break;
+            }
+        }
+    }
+    // for(int x: query){
+    //     printf("rs: %d\n",x);
+    // }
+    return query;
+}
+
+std::multiset<int> rangeQuerySkip(int a, int b, Node* head){
+    std::multiset<int> query;
+    Node* aPos = skipSearch(a, head);
+    if(aPos == nullptr){
+        return query;
+    }else{
+        while(aPos->val<=b){
+            query.insert(aPos->val);
+            if(aPos->right != nullptr){
+                aPos = aPos->right;
+            }else{
+                break;
+            }
+        }
+        // for(int x: query){
+        //     printf("sk: %d\n",x);
+        // }
+        return query;
+    }
+}
+
+bool equivalent(std::multiset<int> RangeArr, std::multiset<int> RangeAS, std::multiset<int> RangeSkip){
+    if(RangeArr == RangeAS && RangeArr == RangeSkip && RangeAS == RangeSkip){
+        std::cout<<"true";
+        return true;
+    }else{
+        std::cout<<"false";
+        return false;
+    }
+}
 
 auto timeUsage(){
     //計時
@@ -205,12 +286,12 @@ auto timeUsage(){
         printf("%d ", num);
     }
 
-    // std::vector<int> array = ArrayCreation(input);
-
+    std::vector<int> array = ArrayCreation(input);
     // for(int i=0; i<array.size(); i++){
     //     printf("\n%d ", array[i]);
     // }
-    // std::vector<std::vector<int>*> ArrOfSorted = ArrayOfSortedArrayCreation(input);
+
+    std::vector<std::vector<int>*> ArrOfSorted = ArrayOfSortedArrayCreation(input);
     // for(int i=0; i<ArrOfSorted.size(); i++){
     //     std::vector<int>* layer = ArrOfSorted[i];
     //     printf("layer%d:",i);
@@ -221,7 +302,7 @@ auto timeUsage(){
     // }
 
     //skiplist creaton
-    // Node* head = skiplistCreation(array);
+    Node* head = skiplistCreation(array);
     // Node* iterator = head;
     // std::cout<<"skip list bottom: \n";
     // while(iterator->down!=NULL){
@@ -233,9 +314,11 @@ auto timeUsage(){
     // }
     // printf("%d, ",iterator->val);
 
-    //range query
-    
     //evaluation
+    int k = pow(2,1);
+    int a = rand()%n;
+    printf("\na, a+k: %d, %d\n", a, a+k);
+    equivalent(rangeQueryArr(a, a+k, array), rangeQueryArrOfSort(a, a+k, ArrOfSorted), rangeQuerySkip(a, a+k, head));
 
     auto end = std::chrono::high_resolution_clock::now();
     auto cpu__time_used = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
