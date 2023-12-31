@@ -116,7 +116,7 @@ Node* randomUp(Node* bottom, Node* head){
             int p = rand()%2;
             if(p == 1){
                 times++;
-                Node* nCopy = new Node(bottom->val);;
+                Node* nCopy = new Node(bottom->val);
                 nCopy->down = downTemp;
                 downTemp->up = nCopy;
                 downTemp = nCopy;
@@ -132,7 +132,7 @@ Node* randomUp(Node* bottom, Node* head){
                         nCopy->down->right->up->left = nCopy;
                     }
                 }
-                if(times+1>head->hight()){
+                if( bottom->val != -1 && times+1>head->hight()){
                     Node* index = nCopy;
                     while(index->left != nullptr){
                         index = index->left;
@@ -141,6 +141,7 @@ Node* randomUp(Node* bottom, Node* head){
                     newHead->down = head;
                     head->up = newHead;
                     newHead->right = index;
+                    index->left = newHead;
                 }
             }else{
                 break;
@@ -155,12 +156,19 @@ Node* skiplistCreation(std::vector<int> input){
     Node* start = randomUp(startb,startb);
     for(int i=0; i<input.size(); i++){
         Node * ptr = start;
+        while(ptr->up != nullptr){
+            ptr = ptr->up;
+        }
+        // std::cout<<"start: "<<ptr->val;
         while(ptr->down != nullptr){
             if(ptr->right == nullptr || ptr->right->val > input[i]){
                 ptr = ptr->down;
             }else{
                 ptr = ptr->right;
             }
+        }
+        while(ptr->right!= nullptr && ptr->right->val<input[i]){
+            ptr = ptr->right;
         }
         Node* n = new Node(input[i]);
         if(input[i]<ptr->val){
@@ -196,7 +204,9 @@ auto timeUsage(){
         input.insert(num);
         printf("%d ", num);
     }
-    std::vector<int> array = ArrayCreation(input);
+
+    // std::vector<int> array = ArrayCreation(input);
+
     // for(int i=0; i<array.size(); i++){
     //     printf("\n%d ", array[i]);
     // }
@@ -209,20 +219,22 @@ auto timeUsage(){
     //     }
     //     printf("\n");
     // }
-    //skiplist creaton
-    Node* head = skiplistCreation(array);
-    Node* iterator = head;
-    std::cout<<"skip list bottom: \n";
-    while(iterator->down!=NULL){
-        iterator = iterator->down;
-    }
-    while(iterator->right!=NULL){
-        printf("%d, ",iterator->val);
-        iterator = iterator->right;
-    }
-    printf("%d, ",iterator->val);
-    //range query
 
+    //skiplist creaton
+    // Node* head = skiplistCreation(array);
+    // Node* iterator = head;
+    // std::cout<<"skip list bottom: \n";
+    // while(iterator->down!=NULL){
+    //     iterator = iterator->down;
+    // }
+    // while(iterator->right!=NULL){
+    //     printf("%d, ",iterator->val);
+    //     iterator = iterator->right;
+    // }
+    // printf("%d, ",iterator->val);
+
+    //range query
+    
     //evaluation
 
     auto end = std::chrono::high_resolution_clock::now();
