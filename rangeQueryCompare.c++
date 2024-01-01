@@ -269,12 +269,51 @@ bool equivalent(std::multiset<int> RangeArr, std::multiset<int> RangeAS, std::mu
     }
 }
 
-auto timeUsage(){
+void deleteSkipList(Node* head) {
+    while (head) {
+        Node* current = head;
+        head = head->down;  // Move down a level
+
+        while (current) {
+            Node* temp = current;
+            current = current->right;  // Move to the next node
+            delete temp;  // Delete the current node
+        }
+    }
+}
+
+void deleteArrayOfSorted(std::vector<std::vector<int>*> ArrOfSorted){
+    for(int i=0; i<ArrOfSorted.size(); i++){
+        delete ArrOfSorted[i];
+        ArrOfSorted[i] = nullptr;
+    }
+}
+
+auto timeUsage(int k, /*std::vector<int> Node**/std::vector<std::vector<int>*> ArrOfSorted){
+    //evaluation
+    // int k = pow(2,4);
+    int n = (pow(2,15)-1);
+    int a = rand()%n;
+    // int a = 0;
+    printf("\na, a+k: %d, %d\n", a, a+k);
+
     //計時
     auto start = std::chrono::high_resolution_clock::now();
+    // std::multiset<int> ra = rangeQueryArr(a, a+k, array);
+    std::multiset<int> rs = rangeQueryArrOfSort(a, a+k, ArrOfSorted);
+    // std::multiset<int> sk = rangeQuerySkip(a, a+k, head);
+    auto end = std::chrono::high_resolution_clock::now();
+    auto cpu__time_used = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
 
-    //用於產生實驗用的陣列
-    int n = pow(2,3)-1;
+    return cpu__time_used;
+}
+
+int main() {
+    // Seed the random number generator
+    srand(time(NULL));
+    //calculate the average used time of the action
+        //用於產生實驗用的陣列
+    int n = pow(2,15)-1;
     std::multiset<int> input;
     for(int i=0; i<n; i++){
         int num;
@@ -283,10 +322,10 @@ auto timeUsage(){
         }while(num>=(RAND_MAX-RAND_MAX%n));
         num%=n;
         input.insert(num);
-        printf("%d ", num);
+        // printf("%d ", num);
     }
 
-    std::vector<int> array = ArrayCreation(input);
+    // std::vector<int> array = ArrayCreation(input);
     // for(int i=0; i<array.size(); i++){
     //     printf("\n%d ", array[i]);
     // }
@@ -302,7 +341,7 @@ auto timeUsage(){
     // }
 
     //skiplist creaton
-    Node* head = skiplistCreation(array);
+    // Node* head = skiplistCreation(array);
     // Node* iterator = head;
     // std::cout<<"skip list bottom: \n";
     // while(iterator->down!=NULL){
@@ -314,35 +353,23 @@ auto timeUsage(){
     // }
     // printf("%d, ",iterator->val);
 
-    //evaluation
-    int k = pow(2,1);
-    int a = rand()%n;
-    printf("\na, a+k: %d, %d\n", a, a+k);
-    equivalent(rangeQueryArr(a, a+k, array), rangeQueryArrOfSort(a, a+k, ArrOfSorted), rangeQuerySkip(a, a+k, head));
+    int k = 15;
+    for(int i=0; i<=k; i++){
+        auto sum = std::chrono::nanoseconds(0);
+        for(int j=0; j<10; j++){
+            auto usedTime = timeUsage(pow(2,i), ArrOfSorted);
+            std::cout<<"used time: "<<usedTime.count();
+            sum+=usedTime;
+        }
+        std::cout<<"Average used time: "<<sum.count()/10;
+    }
+    std::cout<<"finish";
+
+    // equivalent(ra, rs, sk);
 
     //delete all the pointer that might cause problem
+    deleteArrayOfSorted(ArrOfSorted);
+    // deleteSkipList(head);
 
-    auto end = std::chrono::high_resolution_clock::now();
-    auto cpu__time_used = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
-    return cpu__time_used;
-}
-
-auto getAvg(int n){
-    auto sum = std::chrono::nanoseconds(0);
-    for(int i=0; i<n; i++){
-        auto usedTime = timeUsage();
-        std::cout<<"第"<<i<<"次 : "<<usedTime.count()<<"\n";
-        sum += usedTime;
-    }
-    return sum/n;
-}
-
-int main() {
-    // Seed the random number generator
-    srand(time(NULL));
-    //calculate the average used time of the action
-    auto usedTime_Average = getAvg(1);
-    std::cout << "程式平均執行時間：" << usedTime_Average.count() << " nanoseconds" <<"\n";
-    std::cout<<"finish";
     return 0;
 }
