@@ -60,7 +60,7 @@ void insert(std::vector<std::vector<int>*>& arrAdress, std::vector<std::vector<i
     }
 }
 
-std::vector<std::vector<int>*> ArrayOfSortedArrayCreation(std::multiset<int> input){
+std::vector<std::vector<int>*> ArrayOfSortedArrayCreation(std::vector<int> input){
     std::vector<std::vector<int>*> arrAdress;
     std::vector<std::vector<int>*> tempAdress;
     std::vector<int>* arr0 = new std::vector<int>;
@@ -289,19 +289,19 @@ void deleteArrayOfSorted(std::vector<std::vector<int>*> ArrOfSorted){
     }
 }
 
-auto timeUsage(int k, /*std::vector<int> Node**/std::vector<std::vector<int>*> ArrOfSorted){
+auto timeUsage(int k, Node* /*std::vector<int> std::vector<std::vector<int>*>*/ head){
     //evaluation
     // int k = pow(2,4);
     int n = (pow(2,15)-1);
     int a = rand()%n;
     // int a = 0;
-    printf("\na, a+k: %d, %d\n", a, a+k);
+    // printf("\na, a+k: %d, %d\n", a, a+k);
 
     //計時
     auto start = std::chrono::high_resolution_clock::now();
     // std::multiset<int> ra = rangeQueryArr(a, a+k, array);
-    std::multiset<int> rs = rangeQueryArrOfSort(a, a+k, ArrOfSorted);
-    // std::multiset<int> sk = rangeQuerySkip(a, a+k, head);
+    // std::multiset<int> rs = rangeQueryArrOfSort(a, a+k, ArrOfSorted);
+    std::multiset<int> sk = rangeQuerySkip(a, a+k, head);
     auto end = std::chrono::high_resolution_clock::now();
     auto cpu__time_used = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
 
@@ -315,6 +315,7 @@ int main() {
         //用於產生實驗用的陣列
     int n = pow(2,15)-1;
     std::multiset<int> input;
+    std::vector<int> inputForAS;
     for(int i=0; i<n; i++){
         int num;
         do{
@@ -322,15 +323,16 @@ int main() {
         }while(num>=(RAND_MAX-RAND_MAX%n));
         num%=n;
         input.insert(num);
+        inputForAS.push_back(num);
         // printf("%d ", num);
     }
 
-    // std::vector<int> array = ArrayCreation(input);
+    std::vector<int> array = ArrayCreation(input);
     // for(int i=0; i<array.size(); i++){
     //     printf("\n%d ", array[i]);
     // }
 
-    std::vector<std::vector<int>*> ArrOfSorted = ArrayOfSortedArrayCreation(input);
+    // std::vector<std::vector<int>*> ArrOfSorted = ArrayOfSortedArrayCreation(inputForAS);
     // for(int i=0; i<ArrOfSorted.size(); i++){
     //     std::vector<int>* layer = ArrOfSorted[i];
     //     printf("layer%d:",i);
@@ -341,7 +343,7 @@ int main() {
     // }
 
     //skiplist creaton
-    // Node* head = skiplistCreation(array);
+    Node* head = skiplistCreation(array);
     // Node* iterator = head;
     // std::cout<<"skip list bottom: \n";
     // while(iterator->down!=NULL){
@@ -357,19 +359,19 @@ int main() {
     for(int i=0; i<=k; i++){
         auto sum = std::chrono::nanoseconds(0);
         for(int j=0; j<10; j++){
-            auto usedTime = timeUsage(pow(2,i), ArrOfSorted);
-            std::cout<<"used time: "<<usedTime.count();
+            auto usedTime = timeUsage(pow(2,i), head);
+            std::cout<<"used time: "<<usedTime.count()<<"\n";
             sum+=usedTime;
         }
-        std::cout<<"Average used time: "<<sum.count()/10;
+        std::cout<<" k= "<<i<<" Average used time: "<<sum.count()/10<<"\n";
     }
     std::cout<<"finish";
 
     // equivalent(ra, rs, sk);
 
     //delete all the pointer that might cause problem
-    deleteArrayOfSorted(ArrOfSorted);
-    // deleteSkipList(head);
+    // deleteArrayOfSorted(ArrOfSorted);
+    deleteSkipList(head);
 
     return 0;
 }
