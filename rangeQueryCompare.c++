@@ -4,6 +4,7 @@
 #include <set>
 #include <vector>
 #include <list>
+#include <fstream>
 
 std::vector<int> ArrayCreation(std::multiset<int> input){
     std::vector<int> arr;
@@ -261,10 +262,10 @@ std::multiset<int> rangeQuerySkip(int a, int b, Node* head){
 
 bool equivalent(std::multiset<int> RangeArr, std::multiset<int> RangeAS, std::multiset<int> RangeSkip){
     if(RangeArr == RangeAS && RangeArr == RangeSkip && RangeAS == RangeSkip){
-        std::cout<<"true";
+        std::cout<<"true\n";
         return true;
     }else{
-        std::cout<<"false";
+        std::cout<<"false\n";
         return false;
     }
 }
@@ -289,7 +290,7 @@ void deleteArrayOfSorted(std::vector<std::vector<int>*> ArrOfSorted){
     }
 }
 
-auto timeUsage(int k, Node* /*std::vector<int> std::vector<std::vector<int>*>*/ head){
+auto timeUsage(int k, std::vector<int> array, std::vector<std::vector<int>*> ArrOfSorted, Node* head){
     //evaluation
     // int k = pow(2,4);
     int n = (pow(2,15)-1);
@@ -299,40 +300,70 @@ auto timeUsage(int k, Node* /*std::vector<int> std::vector<std::vector<int>*>*/ 
 
     //計時
     auto start = std::chrono::high_resolution_clock::now();
-    // std::multiset<int> ra = rangeQueryArr(a, a+k, array);
-    // std::multiset<int> rs = rangeQueryArrOfSort(a, a+k, ArrOfSorted);
+    std::multiset<int> ra = rangeQueryArr(a, a+k, array);
+    std::multiset<int> rs = rangeQueryArrOfSort(a, a+k, ArrOfSorted);
     std::multiset<int> sk = rangeQuerySkip(a, a+k, head);
     auto end = std::chrono::high_resolution_clock::now();
     auto cpu__time_used = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
+
+    equivalent(ra, rs, sk);
 
     return cpu__time_used;
 }
 
 int main() {
-    // Seed the random number generator
     srand(time(NULL));
-    //calculate the average used time of the action
-        //用於產生實驗用的陣列
-    int n = pow(2,15)-1;
-    std::multiset<int> input;
-    std::vector<int> inputForAS;
-    for(int i=0; i<n; i++){
-        int num;
-        do{
-            num = rand() % (n);
-        }while(num>=(RAND_MAX-RAND_MAX%n));
-        num%=n;
-        input.insert(num);
-        inputForAS.push_back(num);
-        // printf("%d ", num);
+
+    int n = pow(2, 5) - 1;
+
+    // Open a file for writing
+    std::ofstream outputFile("test.txt");
+    if (!outputFile.is_open()) {
+        std::cerr << "Error opening file for writing." << std::endl;
+        return 1;
     }
 
+    // Write random numbers to the file
+    for (int i = 0; i < n; i++) {
+        int num;
+        do {
+            num = rand() % n;
+        } while (num >= (RAND_MAX - RAND_MAX % n));
+        num %= n;
+        outputFile << num << "\n";
+    }
+
+    // Close the file after writing
+    outputFile.close();
+
+    // Containers for storing the numbers
+    std::multiset<int> input;
+    std::vector<int> inputForAS;
+
+    // Reopen the file for reading
+    std::ifstream inputFile("test.txt");
+    if (!inputFile.is_open()) {
+        std::cerr << "Error opening file for reading." << std::endl;
+        return 1;
+    }
+
+    // Read numbers from the file
+    std::string line;
+    while (std::getline(inputFile, line)) {
+        int num = std::stoi(line);
+        input.insert(num);
+        inputForAS.push_back(num);
+        std::cout << num << " ";
+    }
+
+    // Close the file
+    inputFile.close();
     std::vector<int> array = ArrayCreation(input);
     // for(int i=0; i<array.size(); i++){
     //     printf("\n%d ", array[i]);
     // }
 
-    // std::vector<std::vector<int>*> ArrOfSorted = ArrayOfSortedArrayCreation(inputForAS);
+    std::vector<std::vector<int>*> ArrOfSorted = ArrayOfSortedArrayCreation(inputForAS);
     // for(int i=0; i<ArrOfSorted.size(); i++){
     //     std::vector<int>* layer = ArrOfSorted[i];
     //     printf("layer%d:",i);
@@ -358,8 +389,8 @@ int main() {
     int k = 15;
     for(int i=0; i<=k; i++){
         auto sum = std::chrono::nanoseconds(0);
-        for(int j=0; j<10; j++){
-            auto usedTime = timeUsage(pow(2,i), head);
+        for(int j=0; j<1; j++){
+            auto usedTime = timeUsage(pow(2,i),array,ArrOfSorted, head);
             std::cout<<"used time: "<<usedTime.count()<<"\n";
             sum+=usedTime;
         }
@@ -367,10 +398,8 @@ int main() {
     }
     std::cout<<"finish";
 
-    // equivalent(ra, rs, sk);
-
     //delete all the pointer that might cause problem
-    // deleteArrayOfSorted(ArrOfSorted);
+    deleteArrayOfSorted(ArrOfSorted);
     deleteSkipList(head);
 
     return 0;
