@@ -341,7 +341,7 @@ int main() {
     std::vector<int> inputForAS;
 
     // Reopen the file for reading
-    std::ifstream inputFile("test.txt");
+    std::ifstream inputFile("test1.txt");
     if (!inputFile.is_open()) {
         std::cerr << "Error opening file for reading." << std::endl;
         return 1;
@@ -391,7 +391,7 @@ int main() {
         auto sum = std::chrono::nanoseconds(0);
         for(int j=0; j<1; j++){
             auto usedTime = timeUsage(pow(2,i),array,ArrOfSorted, head);
-            std::cout<<"used time: "<<usedTime.count()<<"\n";
+            // std::cout<<"used time: "<<usedTime.count()<<"\n";
             sum+=usedTime;
         }
         std::cout<<" k= "<<i<<" Average used time: "<<sum.count()/10<<"\n";
